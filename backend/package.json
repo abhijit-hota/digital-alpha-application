@@ -1,0 +1,40 @@
+{
+  "name": "digital-alpha-ce19b033-backend",
+  "version": "1.0.0",
+  "description": "CE19B033",
+  "main": "./src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development nodemon -r dotenv/config ./src/index.js -e js,mjs,json",
+    "prod": "cross-env NODE_ENV=production nodemon -r dotenv/config ./src/index.js -e js,mjs,json",
+    "lint": "eslint --fix src/**/*.js",
+    "pretty": "pretty-quick --pattern \"**/*.*(js|json)\" --staged"
+  },
+  "author": "Abhijit Hota CE19B033",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.2",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.2.3",
+    "puppeteer": "^13.4.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.0.0",
+    "eslint": "^8.9.0",
+    "nodemon": "^2.0.15",
+    "pre-commit": "^1.2.2",
+    "prettier": "^2.5.1",
+    "pretty-quick": "^3.1.3"
+  },
+  "pre-commit": {
+    "run": [
+      "lint",
+      "pretty"
+    ]
+  }
+}
