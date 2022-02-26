@@ -13,9 +13,13 @@ export const login = async (req, res) => {
 		const userData = await scrape({ roll, password });
 
 		if (!userData) {
-			return res.status(400).send("Wrong Password.");
+			return res.status(400).send({ message: "Invalid credentials." });
 		}
-		await User.updateOne({ roll }, { ...userData }, { upsert: true }).exec();
+		await User.updateOne(
+			{ roll },
+			{ cgpa: userData.cgpa, semesters: userData.semesters },
+			{ upsert: true }
+		).exec();
 
 		const token = jwt.sign({ roll }, SECRET);
 		const opts = IS_PRODUCTION ? { domain: "" } : {};
@@ -26,7 +30,7 @@ export const login = async (req, res) => {
 			...opts,
 		});
 
-		return res.json(userData);
+		return res.json({ message: "Successfully logged in." });
 	} catch (error) {
 		res.status(500).json({ message: "An error occurred" });
 		console.error(error.message, error);
@@ -64,12 +68,12 @@ export const getDetails = async (req, res) => {
 		const user = await User.findOne({ roll: res.locals.roll }).lean().exec();
 
 		if (!user) {
-			return res.status(400).send("Please login");
+			return res.status(400).send({ message: "Please login" });
 		}
 
 		return res.send(user);
 	} catch (error) {
-		res.status(500).send("Ann error occurred");
+		res.status(500).send({ message: "An error occurred" });
 		console.error(error.message, error);
 	}
 };

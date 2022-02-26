@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
 	Input,
 	Container,
@@ -7,21 +7,24 @@ import {
 	InputRightElement,
 	InputLeftElement,
 	Button,
+	Image,
+	Heading,
 } from "@chakra-ui/react";
 import { LockIcon } from "@chakra-ui/icons";
 import { useLocation } from "wouter";
-import fetchData from "../utils/fetchData";
+import api from "../utils/api";
+import toast from "../utils/toast";
 
-// import Logo from "../logo.webp";
+import Logo from "../assets/logos.png";
 
 const LoginPage = () => {
 	const [show, setShow] = useState(false);
 	const [isLoggingIn, setLoggingIn] = useState(false);
 
 	const [credentials, setCredentialsRaw] = useState({ roll: "", password: "" });
-	const setCredentials = (type, value) => {
-		setCredentialsRaw((prevCreds) => ({ ...prevCreds, [type]: value }));
-	};
+	const setCredentials = useCallback((type, value) => {
+		setCredentialsRaw((prevState) => ({ ...prevState, [type]: value }));
+	});
 
 	const [pwError, setError] = useState(false);
 	const pwRef = useRef(null);
@@ -29,32 +32,26 @@ const LoginPage = () => {
 	const [, setLocation] = useLocation();
 
 	const logIn = async (e) => {
-		setLoggingIn(true);
-		e.preventDefault();
-		e.stopPropagation();
-
-		if (credentials.password === "" || credentials.email === "") {
-			setError(true);
-			return;
-		}
 		try {
-			const resData = await fetchData("/login", "", credentials);
+			setLoggingIn(true);
+			e.preventDefault();
+			e.stopPropagation();
+			setError(false);
 
-			if (resData.data) {
-				if (resData.data.msg === "wrong_password") {
-					setError(true);
-				} else {
-					setError(false);
-
-					localStorage.setItem("DA_LOGGED_IN", "admin");
-					localStorage.setItem("DA_AUTH_TOKEN", resData.data.signedToken);
-
-					setLocation("/dashboard");
-				}
+			if (credentials.password === "" || credentials.email === "") {
+				setError(true);
+				return;
 			}
+			await api("/login", credentials);
+			localStorage.setItem("DA_LOGGED_IN", true);
+			setLocation("/dashboard");
 		} catch (error) {
-			console.error(error.message, error.stack);
-			setLoggingIn(false);
+			setError(true);
+			toast({
+				status: "error",
+				title: "An Error occurred",
+				description: error.message,
+			});
 		} finally {
 			setLoggingIn(false);
 		}
@@ -62,19 +59,17 @@ const LoginPage = () => {
 	return (
 		<>
 			<Container d="flex" flexDirection="column">
-				{/* <Image
-					w="80"
-					alignSelf="center"
-					src={Logo}
-					filter={colorMode === "dark" && "invert(1)"}
-				/> */}
-
+				<Image w="80" alignSelf="center" src={Logo} pb="6" />
+				<Heading textAlign="center" pb="6">
+					Log In
+				</Heading>
 				<InputGroup size="lg" pb="8">
 					<Input
 						ref={pwRef}
 						pr="4.5rem"
 						isRequired
 						placeholder="Roll Number"
+						variant="filled"
 						value={credentials.roll}
 						onChange={(e) => setCredentials("roll", e.target.value)}
 					/>
@@ -89,6 +84,7 @@ const LoginPage = () => {
 						isRequired
 						isInvalid={pwError}
 						type={show ? "text" : "password"}
+						variant="filled"
 						placeholder="LDAP Password"
 						value={credentials.password}
 						onChange={(e) => setCredentials("password", e.target.value)}

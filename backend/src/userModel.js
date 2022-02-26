@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
 	name: { type: String },
 	roll: { type: String, unique: true, lowercase: true },
+	branch: { type: Number },
+	degree: { type: Number },
+	year: { type: Number },
 	cgpa: { type: Number },
 	semesters: [
 		{

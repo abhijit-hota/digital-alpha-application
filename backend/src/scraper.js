@@ -100,6 +100,7 @@ const scrape = async ({ roll, password }) => {
 			cgpa,
 			degree,
 			semesters,
+			branch: "Civil Engineering",
 		};
 	} catch (error) {
 		console.error("[Scrapping] Error occurred:", error);

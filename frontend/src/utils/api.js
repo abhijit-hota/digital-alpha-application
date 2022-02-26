@@ -1,4 +1,4 @@
-const fetchData = async (path, token, body) => {
+const api = async (path, body) => {
 	let URL = import.meta.env.PROD ? "https://ecell.iitm.ac.in/data" : "http://localhost:5100";
 	console.debug(body);
 	const res = await fetch(`${URL}${path}`, {
@@ -7,10 +7,14 @@ const fetchData = async (path, token, body) => {
 		body: body ? JSON.stringify(body) : undefined,
 		headers: {
 			"Content-Type": "application/json",
-			Authorization: token && "Bearer " + token,
 		},
 	});
-	return res.json();
+	const data = await res.json();
+	if (!res.ok) {
+		const err = new Error(data.message);
+		throw err;
+	}
+	return data;
 };
 
-export default fetchData;
+export default api;

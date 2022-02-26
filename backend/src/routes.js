@@ -4,7 +4,7 @@ import { verifyRequest } from "./middleware.js";
 const userRouter = express.Router();
 
 userRouter.post("/login", login);
-userRouter.post("/logout", logout);
-userRouter.get("/courses", verifyRequest, getDetails);
+userRouter.get("/logout", verifyRequest, logout);
+userRouter.get("/details", verifyRequest, getDetails);
 
 export default userRouter;
