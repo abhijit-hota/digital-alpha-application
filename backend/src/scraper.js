@@ -9,7 +9,7 @@ const traverse = (courseTable) => {
 		(acc, row, i) => {
 			if (i === 0) return acc;
 			if (row.childNodes.length === 1) {
-				const title = row.firstChild.textContent.split(" (")[0];
+				const title = row.firstChild.textContent.split(" (")?.[0]?.trim();
 				acc.semesters[acc.currentSem] = {
 					rank: acc.currentSem + 1,
 					title,
@@ -68,14 +68,13 @@ const scrape = async ({ roll, password }) => {
 
 		await page.type('input[name="rollno"]', roll);
 		await page.type('input[name="pwd"]', password);
-		await page.click('input[name="submit"]');
+		await Promise.all([page.waitForNavigation(), page.click('input[name="submit"]')]);
 
-		await Promise.all([
-			page.waitForNavigation(),
-			page.goto("https://www.iitm.ac.in/viewgrades/studentauth/btechdual.php"),
-		]);
+		await page.goto("https://www.iitm.ac.in/viewgrades/studentauth/btechdual.php");
 
-		const student = await page.$eval("center table", (elem) => elem?.textContent);
+		const studentRowElement = await page.$("center table");
+		const student = await studentRowElement.evaluate((elem) => elem?.textContent);
+
 		if (!student) {
 			console.debug("[Scrapping] Error in logging in:", roll);
 			await browser.close();
@@ -92,7 +91,9 @@ const scrape = async ({ roll, password }) => {
 		 */
 		const { semesters, cgpa } = await table.evaluate(traverse);
 
+		await browser.close();
 		console.debug("[Scrapping] Successfully scraped and transformed:", roll);
+
 		return {
 			name,
 			roll,
@@ -102,9 +103,8 @@ const scrape = async ({ roll, password }) => {
 		};
 	} catch (error) {
 		console.error("[Scrapping] Error occurred:", error);
-		return false;
-	} finally {
 		await browser.close();
+		return false;
 	}
 };
 

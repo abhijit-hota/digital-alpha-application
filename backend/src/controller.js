@@ -15,7 +15,6 @@ export const login = async (req, res) => {
 		if (!userData) {
 			return res.status(400).send("Wrong Password.");
 		}
-		console.debug(userData);
 		await User.updateOne({ roll }, { ...userData }, { upsert: true }).exec();
 
 		const token = jwt.sign({ roll }, SECRET);
@@ -26,7 +25,6 @@ export const login = async (req, res) => {
 			httpOnly: true,
 			...opts,
 		});
-		console.debug(userData);
 
 		return res.json(userData);
 	} catch (error) {

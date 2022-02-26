@@ -89,7 +89,7 @@ const LoginPage = () => {
 						isRequired
 						isInvalid={pwError}
 						type={show ? "text" : "password"}
-						placeholder="LDAPPassword"
+						placeholder="LDAP Password"
 						value={credentials.password}
 						onChange={(e) => setCredentials("password", e.target.value)}
 					/>
